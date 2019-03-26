@@ -1,0 +1,113 @@
+import 'dart:async';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
+import 'package:contoh/berita/Detailsiswa.dart';
+
+import 'package:flutter/material.dart';
+
+
+
+
+
+
+class Info3 extends StatefulWidget {
+  @override
+  _Info3State createState() => new _Info3State();
+}
+
+class _Info3State extends State<Info3> {
+
+  Future<List> getData() async {
+    final response = await http.get("http://link.contoh.com/app/contoh.php");
+    return json.decode(response.body);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return new Scaffold(
+      body:  new Container(
+              height: 300.0,
+              decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(20.0),
+                  color: Colors.white,
+                  boxShadow: [
+                    BoxShadow(
+                        color: Colors.black12,
+                        blurRadius: 10.0,
+                        offset: Offset(0.0, 10.0))
+                  ]),
+              child: new Column(
+                children: <Widget>[
+                  new Container(
+                    margin: EdgeInsets.symmetric(horizontal: 20.0),
+                    height: 140.0,
+                    child: Column(
+                      children: <Widget>[
+                       child: new FutureBuilder<List>(
+        future: getData(),
+        builder: (context, snapshot) {
+          if (snapshot.hasError) print(snapshot.error);
+
+          return snapshot.hasData
+              ? new ItemList(
+                  list: snapshot.data,
+                )
+              : new Center(
+                  child: new CircularProgressIndicator(),
+                );
+        },
+      ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+    );
+  }
+}
+
+class ItemList extends StatelessWidget {
+  final List list;
+  ItemList({this.list});
+
+  @override
+  Widget build(BuildContext context) {
+    return GridView.builder(
+      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: MediaQuery.of(context).orientation == Orientation.portrait ?2:3
+      ),
+
+      itemCount: list == null ? 0 : list.length,
+      itemBuilder: (context, i) {
+        return new Container(
+          padding: const EdgeInsets.all(5.0),
+          child: new GestureDetector(
+            onTap: ()=>Navigator.of(context).push(
+              new MaterialPageRoute(
+                builder: (BuildContext context)=> new Detailsiswa(list:list , index: i,)
+              )
+            ),
+            child: new Card(
+              child: Column(
+                children: <Widget>[
+                    new Icon(Icons.account_circle, size: 80.0,),
+                   new Text(list[i]['nama_lengkap'], style: TextStyle(fontSize: 15.0,
+                   fontWeight: FontWeight.bold)),
+                  new Text(list[i]['kelas'], style: TextStyle(fontSize: 15.0,
+                   fontWeight: FontWeight.bold)),
+                  new Text(list[i]['namasekolah'], style: TextStyle(fontSize: 15.0,
+                   fontWeight: FontWeight.bold)),
+                
+                
+                ],
+              ),
+                
+              
+            ),
+          ),
+        );
+      },
+    );
+  }
+}
